@@ -7,79 +7,79 @@ import '../models/transaction.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
+  final Function deleteTx;
 
-  const TransactionList(this.transactions);
+  const TransactionList(this.transactions, this.deleteTx);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 600,
+      // height: MediaQuery.of(context).size.height - 210,
       child: transactions.isEmpty
-          ? Column(
-              children: [
-                SizedBox(
-                  height: 35,
-                ),
-                Text(
-                  'Teo nu a cumparat nimic!',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(
-                  height: 50,
-                ),
-                Container(
-                    height: 200,
-                    child: Lottie.network(
-                        'https://assets6.lottiefiles.com/packages/lf20_a7vr2ghs.json')),
-              ],
-            )
+          ? LayoutBuilder(builder: ((context, constraints) {
+              return Column(
+                children: [
+                  SizedBox(
+                    height: 25,
+                  ),
+                  FittedBox(
+                    child: Text(
+                      'No transactions yet!',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                      height: constraints.maxHeight * 0.6,
+                      child: Lottie.network(
+                          'https://assets6.lottiefiles.com/packages/lf20_a7vr2ghs.json')),
+                ],
+              );
+            }))
           : ListView.builder(
               itemBuilder: (ctx, index) {
                 return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   elevation: 5,
-                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        margin: EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 15,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).primaryColor,
-                            width: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 4, 4, 4),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 30,
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: FittedBox(
+                            child: Text(
+                              '\$${transactions[index].amount}',
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          '\$${transactions[index].amount.toStringAsFixed(2)}', // Text amount of transaction
-                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            transactions[index].title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                      title: Text(
+                        transactions[index].title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        DateFormat.yMMMd().format(transactions[index].date),
+                      ),
+                      trailing: MediaQuery.of(context).size.width > 400
+                          ? TextButton.icon(
+                              onPressed: () => deleteTx(transactions[index].id),
+                              icon: Icon(Icons.delete),
+                              label: Text('Delete'),
+                              style: ButtonStyle(
+                                foregroundColor: MaterialStateProperty.all(
+                                    Theme.of(context).primaryColor),
+                              ),
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.delete),
+                              color: Theme.of(context).primaryColor,
+                              onPressed: () => deleteTx(transactions[index].id),
                             ),
-                          ),
-                          Text(
-                            DateFormat.yMMMEd().format(transactions[index]
-                                .date), // Text date of transaction
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
+                    ),
                   ),
                 );
               },
